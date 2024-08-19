@@ -4,40 +4,40 @@ function UserChat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isConnected, setIsConnected] = useState(false);
-  const ws = useRef(null);
+  const wss = useRef(null);
 
   useEffect(() => {
     connectWebSocket();
 
     return () => {
-      if (ws.current) {
-        ws.current.close();
+      if (wss.current) {
+        wss.current.close();
       }
     };
   }, []);
 
   const connectWebSocket = () => {
-    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    // const wsUrl = `${protocol}://watch-dog-llm.vercel.app`;
-    // const wsUrl = "https://watch-dog-llm.vercel.app";
-    const wsUrl = "http://54.252.184.92:5000";
-    ws.current = new WebSocket(wsUrl);
+    const protocol = window.location.protocol === 'https:' ? 'wssss' : 'wsss';
+    // const wssUrl = `${protocol}://watch-dog-llm.vercel.app`;
+    // const wssUrl = "https://watch-dog-llm.vercel.app";
+    const wssUrl = "http://54.252.184.92:5000";
+    wss.current = new WebSocket(wssUrl);
 
-    ws.current.onopen = () => {
+    wss.current.onopen = () => {
       console.log('WebSocket Connected');
       setIsConnected(true);
     };
 
-    ws.current.onmessage = (event) => {
+    wss.current.onmessage = (event) => {
       console.log('Received message:', event.data);
       setMessages((prevMessages) => [...prevMessages, { role: 'bot', content: event.data }]);
     };
 
-    ws.current.onerror = (error) => {
+    wss.current.onerror = (error) => {
       console.error('WebSocket Error:', error);
     };
 
-    ws.current.onclose = () => {
+    wss.current.onclose = () => {
       console.log('WebSocket Disconnected');
       setIsConnected(false);
       setTimeout(connectWebSocket, 5000);
@@ -49,7 +49,7 @@ function UserChat() {
 
     console.log('Sending message:', input);
     setMessages((prevMessages) => [...prevMessages, { role: 'user', content: input }]);
-    ws.current.send(input);
+    wss.current.send(input);
     setInput('');
   };
 
