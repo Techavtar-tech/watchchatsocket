@@ -6,39 +6,39 @@ function AdminPanel() {
   const [input, setInput] = useState('');
   const [isConnected, setIsConnected] = useState(false);
   const [isConnectedToUser, setIsConnectedToUser] = useState(false);
-  const wss = useRef(null);
+  const ws = useRef(null);
 
   useEffect(() => {
     connectWebSocket();
     return () => {
-      if (wss.current) {
-        wss.current.close();
+      if (ws.current) {
+        ws.current.close();
       }
     };
   }, []);
 
   const connectWebSocket = () => {
-    const protocol = window.location.protocol === 'https:' ? 'wsss' : 'wss';
-    // const wssUrl = `${protocol}://watch-dog-llm.vercel.app`;
-    // const wssUrl = "https://watch-dog-llm.vercel.app";
-    const wsssUrl = "http://54.252.184.92:5000";
-    wss.current = new WebSocket(wssUrl);
+    const protocol = window.location.protocol === 'https:' ? 'ws' : 'ws';
+    // const wsUrl = `${protocol}://watch-dog-llm.vercel.app`;
+    // const wsUrl = "https://watch-dog-llm.vercel.app";
+    const wsUrl = "http://54.252.184.92:5000";
+    ws.current = new WebSocket(wsUrl);
 
-    wss.current.onopen = () => {
+    ws.current.onopen = () => {
       console.log('WebSocket Connected');
       setIsConnected(true);
     };
 
-    wss.current.onmessage = (event) => {
+    ws.current.onmessage = (event) => {
       console.log('Received message:', event.data);
       setMessages((prevMessages) => [...prevMessages, { role: 'system', content: event.data }]);
     };
 
-    wss.current.onerror = (error) => {
+    ws.current.onerror = (error) => {
       console.error('WebSocket Error:', error);
     };
 
-    wss.current.onclose = () => {
+    ws.current.onclose = () => {
       console.log('WebSocket Disconnected');
       setIsConnected(false);
       setTimeout(connectWebSocket, 5000);
@@ -47,13 +47,13 @@ function AdminPanel() {
 
   const connectToUser = () => {
     if (flexId.trim() === '' || !isConnected) return;
-    wss.current.send(`admin:${flexId}`);
+    ws.current.send(`admin:${flexId}`);
     setIsConnectedToUser(true);
   };
 
   const disconnectFromUser = () => {
     if (!isConnected || !isConnectedToUser) return;
-    wss.current.send(`disconnect:${flexId}`);
+    ws.current.send(`disconnect:${flexId}`);
     setIsConnectedToUser(false);
     setMessages([]);
   };
@@ -62,13 +62,13 @@ function AdminPanel() {
     if (input.trim() === '' || !isConnected || !isConnectedToUser) return;
     console.log('Sending message:', input);
     setMessages((prevMessages) => [...prevMessages, { role: 'admin', content: input }]);
-    wss.current.send(input);
+    ws.current.send(input);
     setInput('');
   };
 
   useEffect(() => {
-    if (wss.current) {
-      wss.current.onmessage = (event) => {
+    if (ws.current) {
+      ws.current.onmessage = (event) => {
         console.log('Received message:', event.data);
         if (event.data.startsWith('Connected to user') || event.data.startsWith('Disconnected from user')) {
           setMessages((prevMessages) => [...prevMessages, { role: 'system', content: event.data }]);
