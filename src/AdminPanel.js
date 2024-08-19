@@ -21,7 +21,7 @@ function AdminPanel() {
     const protocol = window.location.protocol === 'https:' ? 'ws' : 'ws';
     // const wsUrl = `${protocol}://watch-dog-llm.vercel.app`;
     // const wsUrl = "https://watch-dog-llm.vercel.app";
-    const wsUrl = "http://54.252.184.92:5000";
+    const wsUrl = `{protocol}//54.252.184.92:5000`;
     ws.current = new WebSocket(wsUrl);
 
     ws.current.onopen = () => {
